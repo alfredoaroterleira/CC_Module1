@@ -1,0 +1,336 @@
+---
+title: "CC_Module1"
+format: 
+  html:
+    self-contained: true
+editor: visual
+autor: Alfredo Aro Terleira
+---
+
+## Bar Charts
+
+-   La gráfica de barras es la representación de data agrupada
+
+-   Se puede usar para graficar conteos por grupos o promedios por grupo
+
+### Paso 1: Instalación de ggplot2
+
+```{r}
+#install.packages("ggplot2")
+library(ggplot2)
+```
+
+### Paso 2: Presentamos nuestra base de datos
+
+Contiene data desde 1974 y se encuentra en el Motor Trend Car Road Tests. En esta data hay alrededor de 32 autos desde 1973 hasta 1974, y para cada automóvil existen 11 variables en nuestra base de datos.
+
+```{r}
+mtcars
+```
+
+Para graficar utilizaremos la variable **cyl** de nuestro conjunto de datos. Tener en cuenta la data cualitativa de la cuantitativa. Es importante entender la diferencia de estas dos.
+
+### Paso 3: Simple bar plot with qplot()
+
+```{r}
+qplot(
+  mtcars$cyl,
+  geom = "bar"
+)
+```
+
+### Paso 4: Usamos un color
+
+```{r}
+qplot(
+  mtcars$cyl,
+  geom = "bar",
+  fill = I("blue"),
+  colour = I("red"))  #si no incluimos esta parte, todo será azul
+```
+
+### Paso 5: Nombramos los ejes
+
+```{r}
+qplot(
+  mtcars$cyl,
+  geom = "bar",
+  fill = I("blue"),
+  xlab = "Cylinders",
+  ylab = "Number of Vehicles"
+)
+```
+
+### Paso 6: Agregamos el título
+
+```{r}
+qplot(
+  mtcars$cyl,
+  geom = "bar",
+  fill = I("blue"),
+  xlab = "Cylinders",
+  ylab = "Number of Vehicles",
+  main = "Cylinders in mtcars"
+)
+```
+
+### Paso 7: Centramos el título ***(add)***
+
+```{r}
+qplot(
+  mtcars$cyl,
+  geom = "bar",
+  fill = I("blue"),
+  xlab = "Cylinders",
+  ylab = "Number of Vehicles",
+  main = "Cylinders in mtcars"
+) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+### Paso 8: Afinamos
+
+```{r}
+ggplot(data = mtcars, aes(x = factor(cyl))) +
+  geom_bar(fill = "blue") + 
+  geom_text(
+    stat = "count",                # Cuenta las observaciones automáticamente
+    aes(label = ..count..),        # Usa el conteo como etiqueta
+    vjust = -0.5,                  # Ajusta la posición vertical por encima de las barras
+    color = "black",               # Color del texto
+    size = 4                       # Tamaño del texto
+  ) +
+  labs(
+    title = "Cylinders in mtcars",
+    x = "Cylinders",
+    y = "Number of Vehicles"
+  ) +
+  theme(plot.title = element_text(hjust = 0.5)) # Centramos el título
+```
+
+## Histograms
+
+-   Los hitogramas se utilizan para visualizar la frecuencia de los valores numéricos
+
+-   Un histograma dividie los datos en compartimentos y luego cuenta la cantidad de veces que un punto de datos cae en cada compartimento. Las barras representan estos recuentos y las que son consecutivas no se encuentran separadas por espacios
+
+-   En este caso, emplearemos la variable **'horsepower'** –\> **hp**
+
+```{r}
+mtcars
+```
+
+### Paso 1: Simple histogram with qplot()
+
+```{r}
+qplot(
+  mtcars$hp,
+  geom = "histogram"
+)
+```
+
+### Paso 2: Changing the bin width
+
+-   El `binwidth` determina el ancho de las barras o "bins" del histograma. Controla el tamaño de los intervalos en los que se agrupan los datos.
+
+-   Si `binwidth` es pequeño, el histograma tendrá más barras y mostará más detalles sobre la distribución.
+
+-   Si `binwidth` es grande, el histograma tendrá menos barras y agrupará los datos en intervalos más amplios, lo que puede ocultar algunos detalles.
+
+```{r}
+qplot(
+  mtcars$hp,
+  geom = "histogram",
+  binwidth = 25
+)
+```
+
+### Paso 3: Bar Outline
+
+-   Aquí buscamos diferenciar las agrupaciones
+
+```{r}
+qplot(
+  mtcars$hp,
+  geom = "histogram",
+  binwidth = 25,
+  colour = I("black")
+)
+```
+
+### Paso 4: Limits for x axis
+
+```{r}
+qplot(
+  mtcars$hp,
+  geom = "histogram",
+  binwidth = 25,
+  colour = I("black"),
+  xlim = c(50, 350)
+)
+```
+
+### Paso 5: Axis Labels
+
+```{r}
+qplot(
+  mtcars$hp,
+  geom = "histogram",
+  binwidth = 25,
+  colour = I("black"),
+  xlab = "Horsepower",
+  ylab = "Number of cars"
+)
+```
+
+### Paso 6: Remove fill color
+
+```{r}
+qplot(
+  mtcars$hp,
+  geom = "histogram",
+  binwidth = 25,
+  colour = I("black"),
+  xlab = "Horsepower",
+  ylab = "Number of cars",
+  alpha = I(0)
+)
+```
+
+### Paso 7: Adding titles to plot
+
+```{r}
+qplot(
+  mtcars$hp,
+  geom = "histogram",
+  binwidth = 25,
+  colour = I("black"),
+  xlab = "Horsepower",
+  ylab = "Number of cars",
+  alpha = I(0),
+  main = "Histogram"
+)
+```
+
+## Pie Charts
+
+-   La variable que tomaremos como referencia será '**number of carburetors**' –\> **carb**
+
+-   Debemos tener en cuenta que no existe una función llamada "pie chart" en la librería. Por lo que **primero debemos crear un "stacked bar plot"** (gráfico de barras apiladas)
+
+```{r}
+mtcars
+```
+
+### Paso 1: Stacked bar plot in ggplot2
+
+-   Este gráfico coloca las barras en el eje vertical, en lugar de separarlas a lo largo del eje horizontal
+
+```{r}
+barp <- ggplot(mtcars, aes(x=1, y=sort(mtcars$carb), fill=sort(mtcars$carb))) + geom_bar(stat="identity")
+
+print(barp)
+```
+
+### Paso 2: Transforming the Bar plot into a Pie chart
+
+```{r}
+barp <- barp + coord_polar(theta='y')
+print(barp)
+```
+
+### Paso 3: Removing Labels
+
+```{r}
+barp <- barp + coord_polar(theta='y')
+barp <- barp + theme(
+  axis.line=element_blank(),
+  axis.text.x=element_blank(),
+  axis.text.y=element_blank(),
+  axis.ticks=element_blank(),
+  axis.title.y=element_blank()
+)
+
+print(barp)
+```
+
+### Paso 4: Adjusting the Background
+
+```{r}
+barp <- barp + coord_polar(theta='y')
+barp <- barp + theme(
+  axis.line=element_blank(),
+  axis.text.x=element_blank(),
+  axis.text.y=element_blank(),
+  axis.ticks=element_blank(),
+  axis.title.y=element_blank(),
+  panel.background=element_blank()
+)
+
+print(barp)
+```
+
+### Paso 5: Axis Labeling
+
+```{r}
+barp <- barp + coord_polar(theta='y')
+barp <- barp + theme(
+  axis.line=element_blank(),
+  axis.text.x=element_blank(),
+  axis.text.y=element_blank(),
+  axis.ticks=element_blank(),
+  axis.title.y=element_blank(),
+  panel.background=element_blank()
+) + labs(y="Carburetors")
+
+print(barp)
+```
+
+## Lab
+
+Aquí observamos la **diferencia entre qplot y ggplot para graficar**
+
+-   `qplot()` nos ofrece una sintaxis simple, pero muy limitada para poder customizarla
+
+-   `ggplot()` es la versión extendida. Se puede customizar aún más, pero la sintaxis es más complicada que `qplot()`.
+
+### Bar Charts: ggplot()
+
+```{r}
+ggplot(data= mtcars, aes(mtcars$hp))  + 
+  geom_histogram(breaks=seq(40, 350, by = 25),  
+                 colour = I("black"),
+                 aes(fill=..count..))
+```
+
+### Códigos para revisar nuestra data
+
+```{r}
+mtcars
+```
+
+-   Función `head` para ver las primeras 6 filas de nuestra data
+
+```{r}
+head(mtcars)
+```
+
+-   Función `tail` para ver las últimas 6 filas de nuestra data
+
+```{r}
+tail(mtcars)
+```
+
+-   Función `summary` para analizar de forma rápida cada columna
+
+```{r}
+summary(mtcars)
+```
+
+-   Función `mean` para conocer la media, también la podemos usar con cualquier variable `mean(datasetname$columname)`
+
+```{r}
+mean(mtcars$cyl)
+```
+
+-   Si **queremos conocer más colores** podemos ir al siguiente [enlace](https://sape.inf.usi.ch/quick-reference/ggplot2/colour)
